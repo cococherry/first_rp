@@ -11,7 +11,7 @@ public class ProductController {
 	
 	public Product selectOne(String id){
 		Product p = new ProductDAO().selectOne(id);
-//		errors(p);
+//		errors(p);aa
 		if(p != null) System.out.println("데이터 조회에 성공하였습니다.");
 		else  System.out.println("데이터 조회에 실패하였습니다.");
 		return p;
