@@ -12,7 +12,6 @@ public class ProductView {
 	public ProductView(){}
 	
 	public void displayMenu() {
-		int no;
 		ProductController controller = new ProductController();
 		
 		do{
@@ -24,8 +23,7 @@ public class ProductView {
 			System.out.println("5. 상품 검색");
 			System.out.println("6. 끝내기");
 			System.out.print("메뉴 선택 : ");
-			no = sc.nextInt();
-			switch(no){
+			switch(sc.nextInt()){
 			case 1: printAll(controller.selectAll()); break;
 			case 2: controller.insertProduct(insertP()); break;
 			case 3: controller.updateProduct(updateP()); break;

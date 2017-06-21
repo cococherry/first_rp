@@ -11,7 +11,8 @@ public class ProductDAO {
 	public Product selectOne(String id){
 		Product p = null;
 		Connection conn = null;
-		Statement stmt = null;
+//		Statement stmt = null;
+		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		
 		try {
@@ -19,9 +20,13 @@ public class ProductDAO {
 			conn = DriverManager.getConnection
 					("jdbc:oracle:thin:@localhost:1521:xe",
 							"student", "student");
-			stmt = conn.createStatement();
-			rset = stmt.executeQuery(
-					"SELECT * FROM PRODUCT WHERE PRODUCT_ID = '"+id+"'");
+//			stmt = conn.createStatement();
+//			rset = stmt.executeQuery(
+//					"SELECT * FROM PRODUCT WHERE PRODUCT_ID = '"+id+"'");
+			String query = "SELECT * FROM PRODUCT WHERE PRODUCT_ID = ?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, id);
+			rset = pstmt.executeQuery();
 			if(rset != null){
 				while(rset.next()){
 					p = new Product(rset.getString("PRODUCT_ID"),rset.getString("P_NAME"),
@@ -35,7 +40,8 @@ public class ProductDAO {
 		} finally {
 			try {
 				rset.close();
-				stmt.close();
+				pstmt.close();
+				//stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				//e.printStackTrace();
@@ -47,7 +53,8 @@ public class ProductDAO {
 	public ArrayList<Product> selectAll(){
 		ArrayList<Product> pList = new ArrayList<Product>();
 		Connection conn = null;
-		Statement stmt = null;
+		//Statement stmt = null;
+		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 		
 		try {
@@ -55,8 +62,10 @@ public class ProductDAO {
 			conn = DriverManager.getConnection
 					("jdbc:oracle:thin:@localhost:1521:xe",
 							"student", "student");
-			stmt = conn.createStatement();
-			rset = stmt.executeQuery("SELECT * FROM PRODUCT");
+//			stmt = conn.createStatement();
+//			rset = stmt.executeQuery("SELECT * FROM PRODUCT");
+			pstmt = conn.prepareStatement("SELECT * FROM PRODUCT");
+			rset = pstmt.executeQuery();
 			if(rset != null){
 				while(rset.next()){
 					pList.add(new Product(rset.getString("PRODUCT_ID"),rset.getString("P_NAME"),
@@ -70,7 +79,8 @@ public class ProductDAO {
 		} finally {
 			try {
 				rset.close();
-				stmt.close();
+				pstmt.close();
+				//stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				//e.printStackTrace();
@@ -82,19 +92,32 @@ public class ProductDAO {
 	public int insertProduct(Product p){
 		int result = 0;
 		Connection conn = null;
-		Statement stmt = null;
+		//Statement stmt = null;
+		PreparedStatement prestmt = null;
 		
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 			conn = DriverManager.getConnection
 					("jdbc:oracle:thin:@localhost:1521:xe",
 							"student", "student");
-			stmt = conn.createStatement();
-			result = stmt.executeUpdate(
-					"INSERT INTO PRODUCT "
-					+"VALUES('"+p.getProductId()+"', '"
-					+p.getpName()+"', "+p.getPrice()+", '"
-					+p.getDescription()+"')");
+			//stmt = conn.createStatement();
+//			result = stmt.executeUpdate(
+//			"INSERT INTO PRODUCT "
+//			+"VALUES('"+p.getProductId()+"', '"
+//			+p.getpName()+"', "+p.getPrice()+", '"
+//			+p.getDescription()+"')");
+			
+			String query = "INSERT INTO PRODUCT VALUES(?, ?, ?, ?)";
+			prestmt = conn.prepareStatement(query);
+			// 객체 생성 후에 쿼리 완성
+			prestmt.setString(1, p.getProductId());
+			prestmt.setString(2, p.getpName());
+			prestmt.setInt(3, p.getPrice());
+			prestmt.setString(4, p.getDescription());
+			
+			// 실행은 이거 딸랑 하나
+			result = prestmt.executeUpdate();
+			
 			if(result > 0) conn.commit();
 			else conn.rollback();
 		} catch (ClassNotFoundException e) {
@@ -103,7 +126,8 @@ public class ProductDAO {
 			//e.printStackTrace();
 		} finally {
 			try {
-				stmt.close();
+				prestmt.close();
+				//stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				//e.printStackTrace();
@@ -116,18 +140,24 @@ public class ProductDAO {
 	public int updateProduct(String id, int price){
 		int result = 0;
 		Connection conn = null;
-		Statement stmt = null;
+		//Statement stmt = null;
+		PreparedStatement pstmt = null;
 		
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 			conn = DriverManager.getConnection
 					("jdbc:oracle:thin:@localhost:1521:xe",
 							"student", "student");
-			stmt = conn.createStatement();
-			result = stmt.executeUpdate(
-					"UPDATE PRODUCT SET "
-					+"PRICE = "+price
-					+" WHERE PRODUCT_ID = '"+id+"'");
+			//stmt = conn.createStatement();
+//			result = stmt.executeUpdate(
+//					"UPDATE PRODUCT SET "
+//					+"PRICE = "+price
+//					+" WHERE PRODUCT_ID = '"+id+"'");
+			pstmt = conn.prepareStatement("UPDATE PRODUCT SET PRICE = ? WHERE PRODUCT_ID = ?");
+			pstmt.setInt(1, price);
+			pstmt.setString(2, id);
+			result = pstmt.executeUpdate();
+			
 			if(result > 0) conn.commit();
 			else conn.rollback();
 		} catch (ClassNotFoundException e) {
@@ -136,7 +166,8 @@ public class ProductDAO {
 			//e.printStackTrace();
 		} finally {
 			try {
-				stmt.close();
+				pstmt.close();
+				//stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				//e.printStackTrace();
@@ -149,16 +180,20 @@ public class ProductDAO {
 	public int deleteProduct(String id){
 		int result = 0;
 		Connection conn = null;
-		Statement stmt = null;
+		//Statement stmt = null;
+		PreparedStatement pstmt = null;
 		
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 			conn = DriverManager.getConnection
 					("jdbc:oracle:thin:@localhost:1521:xe",
 							"student", "student");
-			stmt = conn.createStatement();
-			result = stmt.executeUpdate(
-					"DELETE FROM PRODUCT WHERE PRODUCT_ID = '"+id+"'");
+//			stmt = conn.createStatement();
+//			result = stmt.executeUpdate(
+//					"DELETE FROM PRODUCT WHERE PRODUCT_ID = '"+id+"'");
+			pstmt = conn.prepareStatement("DELETE FROM PRODUCT WHERE PRODUCT_ID = ?");
+			pstmt.setString(1, id);
+			result = pstmt.executeUpdate();
 			if(result > 0) conn.commit();
 			else conn.rollback();
 		} catch (ClassNotFoundException e) {
@@ -167,7 +202,8 @@ public class ProductDAO {
 			//e.printStackTrace();
 		} finally {
 			try {
-				stmt.close();
+				pstmt.close();
+				//stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				//e.printStackTrace();

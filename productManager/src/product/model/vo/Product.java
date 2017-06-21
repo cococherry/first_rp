@@ -1,8 +1,6 @@
 package product.model.vo;
 
-import java.io.Serializable;
-
-public class Product implements Serializable{
+public class Product implements java.io.Serializable{
 	private String productId;
 	private String pName;
 	private int price;
